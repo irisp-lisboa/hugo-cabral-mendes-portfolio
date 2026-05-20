@@ -1,103 +1,131 @@
-// import React, { useState } from 'react'
-// const IMAGES = ['/hero.jpg','/hero.jpg','/hero.jpg','/hero.jpg']
-// export default function Gallery(){
-// const [open,setOpen] = useState(false)
-// const [index,setIndex] = useState(0)
-// return (
-// <section className="py-16">
-// <div className="container">
-// <h2 className="text-2xl font-semibold mb-6">Gallery</h2>
-// <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-// {IMAGES.map((src,i)=><button key={i} onClick={()=>{setIndex(i);setOpen(true)}}><img src={src} alt={`gallery-${i}`} className="object-cover w-full h-48 rounded"/></button>)}
-// </div>
-// {open && <div className="modal-backdrop" onClick={()=>setOpen(false)}><div className="modal-content" onClick={e=>e.stopPropagation()}><img src={IMAGES[index]} alt="enlarged" className="w-full h-auto rounded"/><div className="mt-4 flex justify-end"><button onClick={()=>setOpen(false)} className="px-4 py-2 border rounded">Close</button></div></div></div>}
-// </div>
-// </section>
-// )
-// }
-
 import React, { useState } from 'react';
+import { galleryData } from '../content';
+
+const isLocalVideo = src => src && (src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.mov'));
 
 export default function Gallery() {
-  const [selectedMedia, setSelectedMedia] = useState(null);
-
-  // Define your media. Videos first, then Images.
-  const mediaItems = [
-    { id: 1, type: 'video', src: '/video1.mp4', thumbnail: '/thumb1.jpg', title: 'Performance Clip' },
-    { id: 2, type: 'video', src: '/video2.mp4', thumbnail: '/thumb2.jpg', title: 'Workshop Reel' },
-    { id: 3, type: 'image', src: '/hero.jpg', title: 'Portrait 1' },
-    { id: 4, type: 'image', src: '/action-1.jpg', title: 'Stage Shot' },
-    { id: 5, type: 'image', src: '/img-2.jpg', title: 'Rehearsal' },
-    { id: 6, type: 'image', src: '/img-3.jpg', title: 'Studio Session' },
-  ];
+  const [selected, setSelected] = useState(null);
 
   return (
-    <section className="container py-20">
-      <h2 className="text-4xl font-extralight uppercase tracking-widest mb-16">Gallery</h2>
+    <section className="max-w-7xl mx-auto px-8 py-20">
 
-      {/* MASONRY GRID: columns-1 for mobile, columns-2 for desktop */}
-      <div className="columns-1 md:columns-2 gap-8 space-y-8">
-        {mediaItems.map((item) => (
-          <div 
-            key={item.id} 
-            className="break-inside-avoid cursor-pointer group relative"
-            onClick={() => setSelectedMedia(item)}
+      {/* Header */}
+      <div className="mb-12 border-b border-stone-200 pb-6">
+        <h2 className="text-4xl md:text-5xl font-extralight uppercase tracking-[0.05em]">Gallery</h2>
+      </div>
+
+      {/* Tumblr-style masonry — natural aspect ratios, waterfall columns */}
+      <div className="columns-2 md:columns-3 gap-4">
+        {galleryData.map((item) => (
+          <div
+            key={item.id}
+            onClick={() => setSelected(item)}
+            className="break-inside-avoid mb-4 group relative cursor-pointer overflow-hidden"
           >
             {item.type === 'video' ? (
               <div className="relative">
-                <img 
-                  src={item.thumbnail} 
-                  alt={item.title} 
-                  className="w-full h-auto grayscale group-hover:grayscale-0 transition-all duration-700 shadow-lg"
-                />
-                {/* Play Button Overlay for Videos */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg className="w-6 h-6 fill-black translate-x-0.5" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
+                {isLocalVideo(item.src) ? (
+                  /* Local video — autoplay muted preview in the grid */
+                  <video
+                    src={item.src}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="w-full h-auto block"
+                  />
+                ) : item.thumbnail ? (
+                  /* Vimeo / YouTube — show thumbnail with play button */
+                  <img
+                    src={item.thumbnail}
+                    alt={item.title}
+                    loading="lazy"
+                    className="w-full h-auto block transition-opacity duration-300 group-hover:opacity-85"
+                  />
+                ) : (
+                  <div className="w-full aspect-video bg-stone-200 group-hover:bg-stone-300 transition-colors" />
+                )}
+                {!isLocalVideo(item.src) && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-11 h-11 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-4 h-4 fill-stone-900 translate-x-0.5" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ) : (
-              <img 
-                src={item.src} 
-                alt={item.title} 
-                className="w-full h-auto grayscale group-hover:grayscale-0 transition-all duration-700 shadow-lg"
+              <img
+                src={item.src}
+                alt={item.title}
+                loading="lazy"
+                className="w-full h-auto block transition-opacity duration-300 group-hover:opacity-85"
               />
             )}
-            
-            {/* Subtle Title Overlay */}
-            <div className="mt-2 text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-40 transition-opacity">
-              {item.title}
-            </div>
           </div>
         ))}
       </div>
 
-      {/* LIGHTBOX / MODAL */}
-      {selectedMedia && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-sm"
-          onClick={() => setSelectedMedia(null)}
+      {galleryData.length === 0 && (
+        <p className="text-stone-400 font-light text-sm">No images yet.</p>
+      )}
+
+      {/* Lightbox */}
+      {selected && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/95 backdrop-blur-sm p-4"
+          onClick={() => setSelected(null)}
         >
-          <button className="absolute top-8 right-8 text-white text-2xl font-light">✕</button>
-          
-          <div className="max-w-5xl w-full max-h-[80vh] flex items-center justify-center">
-            {selectedMedia.type === 'video' ? (
-              <video 
-                src={selectedMedia.src} 
-                controls 
-                autoPlay 
-                className="max-h-full max-w-full shadow-2xl"
-              />
+          <button className="absolute top-8 right-8 text-[9px] uppercase tracking-[0.25em] text-white/50 hover:text-white transition-colors font-light">
+            Close ✕
+          </button>
+
+          <div
+            className="max-w-5xl w-full max-h-[88vh] flex items-center justify-center"
+            onClick={e => e.stopPropagation()}
+          >
+            {selected.type === 'video' ? (
+              isLocalVideo(selected.src) ? (
+                /* Local video file — use native player */
+                <video
+                  src={selected.src}
+                  controls
+                  autoPlay
+                  className="max-h-[88vh] max-w-full"
+                />
+              ) : (
+                /* Vimeo / YouTube — use iframe */
+                <div className="w-full aspect-video">
+                  <iframe
+                    src={
+                      selected.src.includes('vimeo.com')
+                        ? selected.src.replace('vimeo.com/', 'player.vimeo.com/video/') + '?autoplay=1'
+                        : selected.src.includes('youtube.com/watch')
+                        ? selected.src.replace('watch?v=', 'embed/') + '?autoplay=1'
+                        : selected.src
+                    }
+                    className="w-full h-full"
+                    allowFullScreen
+                    allow="autoplay"
+                    title={selected.title}
+                  />
+                </div>
+              )
             ) : (
-              <img 
-                src={selectedMedia.src} 
-                className="max-h-full max-w-full object-contain shadow-2xl"
+              <img
+                src={selected.src}
+                alt={selected.title}
+                className="max-h-full max-w-full object-contain"
               />
             )}
           </div>
+
+          {selected.title && (
+            <p className="absolute bottom-8 left-1/2 -translate-x-1/2 text-[8px] uppercase tracking-[0.25em] text-white/40 font-light">
+              {selected.title}
+            </p>
+          )}
         </div>
       )}
     </section>

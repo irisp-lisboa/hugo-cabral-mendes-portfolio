@@ -2,20 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import { contactData } from './content';
 
-// Import your components
 import Home from './components/Home';
 import About from './components/About';
-import Portfolio from './components/Portfolio';
+import Work from './components/Work';
+import WorkDetail from './components/WorkDetail';
 import Workshops from './components/Workshops';
+import WorkshopDetail from './components/WorkshopDetail';
 import Contact from './components/Contact';
 import Gallery from './components/Gallery';
 
-// Helper component to fix scroll position on page change
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   return null;
 }
 
@@ -23,75 +21,60 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
-  // Close mobile menu whenever the URL changes
+  useEffect(() => { setIsMenuOpen(false); }, [location]);
   useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location]);
-
-  // Prevent scrolling when mobile menu is open
-  useEffect(() => {
-    if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.body.style.overflow = isMenuOpen ? 'hidden' : 'unset';
   }, [isMenuOpen]);
 
-  // Navigation styling logic
-  const navClass = ({ isActive }) => 
-    `text-xs uppercase tracking-[0.2em] transition-all duration-300 ${
-      isActive 
-      ? 'font-bold border-b border-black opacity-100' 
-      : 'opacity-40 hover:opacity-100'
+  const navClass = ({ isActive }) =>
+    `text-[10px] uppercase tracking-[0.22em] font-light transition-all duration-300 ${
+      isActive ? 'opacity-100 border-b border-stone-800' : 'opacity-40 hover:opacity-90'
     }`;
 
-  // Mobile specific nav styling
-  const mobileNavClass = ({ isActive }) => 
-    `text-2xl font-light uppercase tracking-[0.3em] transition-all ${
-      isActive ? 'opacity-100 font-normal' : 'opacity-50'
+  const mobileNavClass = ({ isActive }) =>
+    `text-3xl font-extralight uppercase tracking-[0.25em] transition-all ${
+      isActive ? 'opacity-100' : 'opacity-40'
     }`;
 
   return (
-    <div className="min-h-screen flex flex-col text-black bg-white selection:bg-black selection:text-white">
+    <div className="min-h-screen flex flex-col text-stone-900 bg-[#f5f2ee] selection:bg-stone-900 selection:text-[#f5f2ee]">
       <ScrollToTop />
 
-      {/* FIXED HEADER */}
-      <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="container flex items-center justify-between py-6">
-          <NavLink 
-            to="/" 
-            className="text-lg font-light uppercase tracking-[0.3em] hover:opacity-70 transition-opacity z-50"
+      {/* HEADER */}
+      <header className="fixed top-0 w-full z-50 bg-[#f5f2ee]/90 backdrop-blur-md border-b border-stone-200/60">
+        <div className="max-w-7xl mx-auto px-8 flex items-center justify-between py-5">
+          <NavLink
+            to="/"
+            className="text-[11px] font-light uppercase tracking-[0.3em] hover:opacity-60 transition-opacity z-50 text-stone-900"
           >
             Hugo Cabral Mendes
           </NavLink>
 
-          {/* DESKTOP NAVIGATION */}
-          <nav className="hidden md:flex space-x-8">
-            <NavLink to="/" className={navClass}>Home</NavLink>
+          {/* DESKTOP NAV */}
+          <nav className="hidden md:flex items-center space-x-10">
+            <NavLink to="/" end className={navClass}>Home</NavLink>
             <NavLink to="/about" className={navClass}>About</NavLink>
-            <NavLink to="/portfolio" className={navClass}>Portfolio</NavLink>
-            <NavLink to="/workshops" className={navClass}>Workshops</NavLink>
+            <NavLink to="/work" className={navClass}>Work</NavLink>
             <NavLink to="/gallery" className={navClass}>Gallery</NavLink>
             <NavLink to="/contact" className={navClass}>Contact</NavLink>
           </nav>
 
-          {/* MOBILE MENU BUTTON */}
-          <button 
+          {/* MOBILE BUTTON */}
+          <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden z-50 text-[10px] uppercase tracking-[0.2em] font-bold p-2"
+            className="md:hidden z-50 text-[9px] uppercase tracking-[0.25em] font-light p-2 text-stone-900"
           >
             {isMenuOpen ? 'Close' : 'Menu'}
           </button>
 
-          {/* MOBILE MENU OVERLAY */}
-          <div className={`fixed inset-0 bg-white z-40 flex flex-col items-center justify-center space-y-8 transition-all duration-500 ease-in-out ${
-            isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible translate-y-4'
+          {/* MOBILE OVERLAY */}
+          <div className={`fixed inset-0 bg-[#f5f2ee] z-40 flex flex-col items-center justify-center space-y-10 transition-all duration-500 ${
+            isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
           }`}>
-            <nav className="flex flex-col items-center space-y-8">
-              <NavLink to="/" className={mobileNavClass}>Home</NavLink>
+            <nav className="flex flex-col items-center space-y-10">
+              <NavLink to="/" end className={mobileNavClass}>Home</NavLink>
               <NavLink to="/about" className={mobileNavClass}>About</NavLink>
-              <NavLink to="/portfolio" className={mobileNavClass}>Portfolio</NavLink>
-              <NavLink to="/workshops" className={mobileNavClass}>Workshops</NavLink>
+              <NavLink to="/work" className={mobileNavClass}>Work</NavLink>
               <NavLink to="/gallery" className={mobileNavClass}>Gallery</NavLink>
               <NavLink to="/contact" className={mobileNavClass}>Contact</NavLink>
             </nav>
@@ -99,47 +82,46 @@ export default function App() {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-grow pt-24">
+      {/* MAIN */}
+      <main className="flex-grow pt-[69px]">
         <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-            <Route path="/workshops" element={<Workshops />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="*" element={<Home />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/work" element={<Work />} />
+          <Route path="/work/:id" element={<WorkDetail />} />
+          <Route path="/workshops" element={<Workshops />} />
+          <Route path="/workshops/:id" element={<WorkshopDetail />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="*" element={<Home />} />
         </Routes>
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-gray-100 py-12 mt-20">
-        <div className="container flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
-          <div className="text-[10px] uppercase tracking-[0.2em] text-gray-400">
+      <footer className="border-t border-stone-200/60 py-10 mt-0">
+        <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-[9px] uppercase tracking-[0.22em] text-stone-400 font-light">
             © {new Date().getFullYear()} Hugo Cabral Mendes — Lisbon, Portugal
           </div>
-          
           <div className="flex items-center gap-8">
-            <a href={contactData.instagram} target="_blank" rel="noreferrer" className="social-link">Instagram</a>
-            <a href={contactData.youtube} target="_blank" rel="noreferrer" className="social-link">YouTube</a>
-            <a href={contactData.vimeo} target="_blank" rel="noreferrer" className="social-link">Vimeo</a>
+            {[
+              { label: 'Instagram', href: contactData.instagram },
+              { label: 'YouTube', href: contactData.youtube },
+              { label: 'Vimeo', href: contactData.vimeo },
+            ].map(({ label, href }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[9px] uppercase tracking-[0.22em] text-stone-400 hover:text-stone-900 transition-colors font-light"
+              >
+                {label}
+              </a>
+            ))}
           </div>
         </div>
       </footer>
-
-      {/* Simple style for social links to keep the code clean */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .social-link {
-          font-size: 10px;
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-          transition: all 0.3s;
-        }
-        .social-link:hover {
-          text-decoration: underline;
-          text-underline-offset: 8px;
-        }
-      `}} />
     </div>
   );
 }
